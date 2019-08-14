@@ -50,13 +50,15 @@ const SimpleWindowGeometryChangeBlock shiftItLeft = ^AnchoredRect(NSRect windowR
     NSRect leftThird = NSMakeRect(0, 0, 0, 0);
     leftThird.origin.x = 0;
     leftThird.origin.y = 0;
-    leftThird.size.width = floor(screenWidth * 1.0 / 3.0);
+    // Changes made: switches ratio from thirds to 40%
+    leftThird.size.width = floor(screenWidth * 0.4);
     leftThird.size.height = screenSize.height;
 
     if(rectCloseTo(windowRect, leftHalf)) {
         return MakeAnchoredRect(leftThird, kLeftDirection);
     } else if (rectCloseTo(windowRect, leftThird)) {
-        leftHalf.size.width = floor(screenWidth * 2.0 / 3.0);
+        // Changes made: switches ratio from thirds to 60%
+        leftHalf.size.width = floor(screenWidth * 0.6);
     }
 
 
@@ -78,10 +80,11 @@ const SimpleWindowGeometryChangeBlock shiftItRight = ^AnchoredRect(NSRect window
         return MakeAnchoredRect(rightHalf, kRightDirection);
     }
 
+    // Changes made: switches ratio from thirds to 40%
     NSRect rightThird = NSMakeRect(0, 0, 0, 0);
-    rightThird.origin.x = screenWidth - (screenWidth * 1.0 / 3.0);
+    rightThird.origin.x = screenWidth - (screenWidth * 0.4);
     rightThird.origin.y = 0;
-    rightThird.size.width = floor(screenWidth * 1.0 / 3.0);
+    rightThird.size.width = floor(screenWidth * 0.4);
     rightThird.size.height = screenSize.height;
 
     if(rectCloseTo(windowRect, rightHalf)) {
@@ -89,8 +92,9 @@ const SimpleWindowGeometryChangeBlock shiftItRight = ^AnchoredRect(NSRect window
         return MakeAnchoredRect(rightThird, kRightDirection);
     } else if (rectCloseTo(windowRect, rightThird)) {
         FMTLogDebug(@"Close to third!");
-        rightHalf.origin.x = screenWidth - (screenWidth * 2.0 / 3.0);
-        rightHalf.size.width = floor(screenWidth * 2.0 / 3.0);
+        // Changes made: switches ratio from thirds to 60%
+        rightHalf.origin.x = screenWidth - (screenWidth * 0.6);
+        rightHalf.size.width = floor(screenWidth * 0.6);
     }
 
     return MakeAnchoredRect(rightHalf, kRightDirection);
@@ -160,11 +164,33 @@ const SimpleWindowGeometryChangeBlock shiftItBottom = ^AnchoredRect(NSRect windo
 const SimpleWindowGeometryChangeBlock shiftItTopLeft = ^AnchoredRect(NSRect windowRect, NSSize screenSize) {
     NSRect r = NSMakeRect(0, 0, 0, 0);
 
+    printf("topleft once");
     r.origin.x = 0;
     r.origin.y = 0;
 
     r.size.width = screenSize.width / 2;
     r.size.height = screenSize.height / 2;
+
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    BOOL cycle = [defaults boolForKey: kMutipleActionsCycleWindowSizes];
+    if(!cycle) {
+        return MakeAnchoredRect(r, kTopDirection | kLeftDirection);
+    }
+
+    NSRect r40 = NSMakeRect(0, 0, 0, 0);
+    r40.origin.x = 0;
+    r40.origin.y = 0;
+    // Changes made: switches ratio from thirds to 40%
+    r40.size.width = screenSize.width / 2;
+    r40.size.height = floor(screenSize.height * 0.4);
+
+    if(rectCloseTo(windowRect, r)) {
+        return MakeAnchoredRect(r40, kTopDirection | kLeftDirection);
+    } else if (rectCloseTo(windowRect, r40)) {
+        // Changes made: switches ratio from thirds to 60%
+        r.size.height = floor(screenSize.height * 0.6);
+    }
+
 
     return MakeAnchoredRect(r, kTopDirection | kLeftDirection);
 };
